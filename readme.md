@@ -1,3 +1,10 @@
+### TO DO ###
+- Random train stops.
+- Disable start button in web interface when train is running. 
+- Logs view in web interface.
+- reverse and reverse speed.
+
+
 ### Active Profile create db ###
 con.execute("create table activeprofile (id INTEGER PRIMARY KEY AUTOINCREMENT, tracknum INT NOT NULL, trainID INT NOT NULL)")
 

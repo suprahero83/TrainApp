@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+    
+    {% block content %}    
+    <div class="container mt-3">
+        <form action = "/editactiveprofiles" method="post">
+            <label for="train">Track and Train</label>
+            <select id="track" name="track">
+                {% for track in tracks %}
+                <option value="{{track['id']}}">Track {{track["tracknum"]}}</option>
+                {% endfor %}
+            </select>
+            <select id="train" name="train">
+                {% for train in trains %} 
+                <option value="{{train['id']}}">{{train["trainname"]}}</option>
+                {% endfor %}
+            </select>
+            <input type="submit" value="Select">
+        </form>
+    </div>
+    {% endblock %}

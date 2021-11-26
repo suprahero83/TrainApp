@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+    
+    {% block content %}    
+    <div class="container mt-3">
+        <div class="row">
+            <div class="col-sm-5 text-center">
+                <h5>Edit Train Profile</h5>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-5">
+                <form action = "/updateprofile" method="post">  
+                    <table>  
+                        <tr><td>Train Name</td><td><input type="text" name="trainname" value="{{train['trainname']}}"></td></tr>  
+                        <tr><td>Speed</td><td><input type="text"  name="speed" value="{{train['speed']}}"> (0-100)</td></tr>  
+                        <tr><td>Slow Time</td><td><input type="text"  name="slowtime" value="{{train['slowtime']}}"> (0-100)</td></tr>  
+                        <tr><td>Slow Speed</td><td><input type="text"  name="slowspeed" value="{{train['slowspeed']}}"> (0-100)</td></tr>
+                        <tr><td>Low Track Voltage</td><td><input type="text"  name="lowtrackvoltage" value="{{train['lowtrackvoltage']}}"> (0-100)</td></tr>  
+                        <input type="hidden" name="id" value="{{train['id']}}">
+                        <tr><td><input type="submit" value="Submit"></td></tr>  
+                    </table>  
+                </form>  
+            </div>
+        </div>
+    </div>
+    {% endblock %}

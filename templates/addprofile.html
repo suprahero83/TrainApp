@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+    
+    {% block content %}  
+<div class="container">
+    <div class="row">
+        <div class="col-sm-5 text-center">
+        <h5>Add Profile</h5>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-5">
+            <form action = "/saveprofile" method="post">  
+            {% if train %}
+                <div class="alert-danger">{{msg}}</div>
+                <table>  
+                    <tr><td>Train Name (0-100)</td><td><input type="text" name="trainname" value="{{train['trainname']}}"></td></tr>  
+                    <tr><td>Speed (0-100)</td><td><input type="text" name="speed" value="{{train['speed']}}"></td></tr>  
+                    <tr><td>Slow Time (0-100)</td><td><input type="text" name="slowtime" value="{{train['slowtime']}}"></td></tr>  
+                    <tr><td>Slow Speed (0-100)</td><td><input type="text"  name="slowspeed" value="{{train['slowspeed']}}"></td></tr>
+                    <tr><td>Low Track Voltage (0-100)</td><td><input type="text" name="lowtrackvoltage" value="{{train['lowtrackvoltage']}}"></td></tr>  
+                    <tr><td><input type="submit" value="Submit"></td></tr>  
+                </table>  
+                </form>  
+            {% else %}
+                <table>  
+                    <tr><td>Train Name </td><td><input type="text" name="trainname"></td></tr>  
+                    <tr><td>Speed  </td><td><input type="text" name="speed"> (0-100)</td></tr>  
+                    <tr><td>Slow Time  </td><td><input type="text" name="slowtime"> (0-100)</td></tr>  
+                    <tr><td>Slow Speed  </td><td><input type="text" name="slowspeed"> (0-100)</td></tr>  
+                    <tr><td>Low Track Voltage  </td><td><input type="text" name="lowtrackvoltage"> (0-100)</td></tr>  
+                    <tr><td><input type="submit" value="Submit"></td></tr>  
+                </table>  
+            </form>
+        </div>
+    </div>
+</div>
+        {% endif %}
+        
+    {% endblock %}

@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+    
+    {% block content %}    
+    <div class="container mt-3">
+        <div class="row">
+            <div class="col text-center">
+                <h5>Train Information</h5>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">  
+                <table class="table table-sm">  
+                    <thead>  
+                        <tr>
+                            <th>ID</th>  
+                            <th>Train Name</th>  
+                            <th>Speed</th>  
+                            <th>Slow Time</th>  
+                            <th>Slow Speed</th>  
+                            <th>Low Track Voltage</th>  
+                        </tr>
+                    </thead>  
+                    <tbody>
+
+                        {% for row in rows %}
+                            <form action ="/editprofile" method="post">
+                        
+                                <tr> 
+                                    <td>{{row['id']}}</td>  
+                                    <td>{{row['trainname']}}</td>  
+                                    <td>{{row['speed']}}</td>  
+                                    <td>{{row['slowtime']}}</td>  
+                                    <td>{{row['slowspeed']}}</td> 
+                                    <td>{{row['lowtrackvoltage']}}</td>
+                                    <td><button class='btn btn-secondary' name="action" type="submit" value ="edit">Edit</button>
+                                        <button class='btn btn-secondary' name="action" type="submit" value ="delete">Delete</button>
+                                        <input type="hidden" name="trainid" value="{{row['id']}}">
+                                        </td>
+                                </tr>  
+                            </form>
+                        {% endfor %}  
+                    </tbody>
+                </table>
+            </div>  
+        </div>
+    </div>
+{% endblock %}

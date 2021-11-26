@@ -1,0 +1,1 @@
+con.execute("create table activeprofile (id INTEGER PRIMARY KEY AUTOINCREMENT, tracknum INT NOT NULL, trainID INT NOT NULL)")

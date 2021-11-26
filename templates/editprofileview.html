@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+    
+    {% block content %}   
+    <div class="container mt-3">
+        <form action = "/editprofile" method="post">
+            <label for="train">Choose a Train Profile</label>
+            <select id="train" name="train">
+                {% for row in rows %}
+                <option value="{{row['id']}}">{{row["trainname"]}}</option>
+                {% endfor %}  
+            </select>
+            <input type="submit" value="Select">
+        </form>
+    </div>
+    {% endblock %}

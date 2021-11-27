@@ -13,11 +13,8 @@ def index():
  
     if request.method == "POST":
         if request.form['mode'] == 'start':
-            cur.execute("select * from trains WHERE id=%s" % (request.form['trainid']))
-            train = cur.fetchone()
-            if train['mode'] == 'stop':
-                cur.execute("UPDATE trains SET mode='run',running=0 WHERE id=%s" % (request.form['trainid']))
-                con.commit()
+            cur.execute("UPDATE trains SET mode='run',running=0 WHERE id=%s" % (request.form['trainid']))
+            con.commit()
         elif request.form['mode'] == 'stop':
             cur.execute("UPDATE trains SET mode='stop',running=1 WHERE id=%s" % (request.form['trainid']))
             con.commit()
@@ -92,17 +89,18 @@ def saveprofile():
         slowtime = request.form["slowtime"]  
         lowtrackvoltage = request.form["lowtrackvoltage"]  
         slowspeed = request.form["slowspeed"]
+        reversespeed = request.form["reversespeed"]
         mode = 'stop'  
         running = '0'
 
         #form validation
-        if (int(speed) >= 0 and int(speed) <= 100 and int(slowtime) >= 0 and int(slowtime) <= 100 and int(lowtrackvoltage) >=0 and int(lowtrackvoltage) <=100 and  int(slowspeed) >= 0 and int(slowspeed) <= 100):
+        if (int(speed) >= 0 and int(speed) <= 100 and int(slowtime) >= 0 and int(slowtime) <= 100 and int(lowtrackvoltage) >=0 and int(lowtrackvoltage) <=100 and int(slowspeed) >= 0 and int(slowspeed) <= 100 and int(reversespeed) >= 0 and int(reversespeed) <= 100):
             
             try:  
                 with sqlite3.connect("/opt/TrainApp/trainpower.db") as con:  
                     con.row_factory = sqlite3.Row
                     cur = con.cursor()  
-                    cur.execute("INSERT into trains (trainname, speed, mode, running, slowtime, lowtrackvoltage, slowspeed) values (?,?,?,?,?,?,?)",(trainname,speed,mode,running,slowtime,lowtrackvoltage,slowspeed))  
+                    cur.execute("INSERT into trains (trainname, speed, mode, running, slowtime, lowtrackvoltage, slowspeed, reversespeed) values (?,?,?,?,?,?,?,?)",(trainname,speed,mode,running,slowtime,lowtrackvoltage,slowspeed,reversespeed))  
                     con.commit()  
                     msg = "Profile added successfully"  
                     cur = con.cursor()  
@@ -170,7 +168,8 @@ def updateprofile():
     if request.method == "POST":
         con = sqlite3.connect("/opt/TrainApp/trainpower.db")  
         cur = con.cursor()
-        cur.execute("""UPDATE trains SET trainname = '%s', speed = '%s', slowtime = '%s', lowtrackvoltage = '%s', slowspeed = '%s' WHERE id = '%s'""" % (request.form['trainname'],request.form['speed'],request.form['slowtime'],request.form['lowtrackvoltage'],request.form['slowspeed'],request.form['id']))
+        print(request.form['reversespeed'])
+        cur.execute("""UPDATE trains SET trainname = '%s', speed = '%s', slowtime = '%s', lowtrackvoltage = '%s', slowspeed = '%s', reversespeed = '%s' WHERE id = '%s'""" % (request.form['trainname'],request.form['speed'],request.form['slowtime'],request.form['lowtrackvoltage'],request.form['slowspeed'],request.form['reversespeed'],request.form['id']))
         con.commit()
         con.close()
         return render_template("updateprofile.html", the_profile="Update Profile")

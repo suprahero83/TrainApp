@@ -2,8 +2,8 @@
 - Random train stops. - Done
 - Disable start button in web interface when train is running. - Done
 - Logs view in web interface. - Done
-- reverse and reverse speed.
-- Fix start button so it is more acurate
+- reverse and reverse speed. - Done
+- Fix start button so it is more acurate - Done
 
 
 ### Active Profile create db ###

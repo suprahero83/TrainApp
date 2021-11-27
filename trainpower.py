@@ -88,7 +88,6 @@ def TrainStop(TrainSpeed,speedcontrolpin):
     GPIO.output(in1,GPIO.LOW)
     GPIO.output(in2,GPIO.LOW)
 
-
 def TrainStation(currentSpeed,slowtime,speedcontrolpin,directionpin1,directionpin2,stoppin,LowTrackVoltage,slowspeed):
     for slowDown in range (int(currentSpeed), int(slowspeed), -1):
         speedcontrolpin.ChangeDutyCycle(int(slowDown))
@@ -113,6 +112,7 @@ def TrainStation(currentSpeed,slowtime,speedcontrolpin,directionpin1,directionpi
     return 1
 
 def TrainHome(currentSpeed,slowtime,speedcontrolpin,directionpin1,directionpin2,thstoppin1,thslowpin1,slowspeed):
+
     logging.warning('Waiting for train home slow pin')
     while True:
         if pinDebug == 1:
@@ -155,6 +155,25 @@ def TrainHome(currentSpeed,slowtime,speedcontrolpin,directionpin1,directionpin2,
                 break
     logging.warning('We are stopped in the tunnel')
 
+def TrainReverse(ReverseSpeed,speedcontrolpin):
+    logging.warning("In reverse, wating for the stop/start button")
+    while GPIO.input(reverseswitch1) == 1:
+        if GPIO.input(startstopbutton1) == 1:
+            for startSpeed in range (0, int(ReverseSpeed), 1):
+                speedcontrolpin.ChangeDutyCycle(int(startSpeed))
+                GPIO.output(in1,GPIO.HIGH)
+                GPIO.output(in2,GPIO.HIGH)
+                sleep(.2)
+            logging.warning("Done Starting, Train is at full speed")
+            
+    
+    for stopSpeed in range (int(ReverseSpeed), 0 , -1):
+        speedcontrolpin.ChangeDutyCycle(int(stopSpeed))
+        sleep(.05)
+    GPIO.output(in1,GPIO.LOW)
+    GPIO.output(in2,GPIO.LOW)
+
+
 signal.signal(signal.SIGINT, signal_handler)
 
 
@@ -181,8 +200,9 @@ while True:
             while train1['mode'] == 'stop':
                 sleep(.01)
                 if GPIO.input(startstopbutton1) == 1:
-                    cur.execute("UPDATE trains SET mode='run',running=0 WHERE id=%s" % (track1ap['trainID']))
+                    cur.execute("UPDATE trains SET mode='run',running=1 WHERE id=%s" % (track1ap['trainID']))
                     con.commit()
+                    TrainStart(train1['speed'],p1)
                 cur.execute("SELECT * FROM trains WHERE ID = %s" % (track1ap['trainID']))
                 train1 = cur.fetchone()
                     
@@ -199,7 +219,6 @@ while True:
         TrainHome(train1['speed'],train1['slowtime'],p1,in1,in2,homestoppin1,homeslowpin1,train1['slowspeed'])
         cur.execute("UPDATE trains SET running=0, mode='stop', running=0 WHERE id=%s" % (track1ap['trainID']))
         con.commit()
-
 
     p1.ChangeDutyCycle(int(train1['speed']))
     
@@ -219,6 +238,15 @@ while True:
         TrainHome(train1['speed'],train1['slowtime'],p1,in1,in2,homestoppin1,homeslowpin1,train1['slowspeed'])
         cur.execute("UPDATE trains SET running=0, mode='stop' WHERE id=%s" % (track1ap['trainID']))
         con.commit()
+
+    if GPIO.input(reverseswitch1) == 1:
+        logging.warning("Reverse switch has been flipped")
+        TrainStop(train1['speed'],p1)
+        TrainReverse(train1['reversespeed'],p2)
+        cur.execute("UPDATE trains SET mode='stop',running=0 WHERE id=%s" % (track1ap['trainID']))
+        con.commit()
+
+
 
     if pinDebug == 1:
 

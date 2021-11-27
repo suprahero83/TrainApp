@@ -4,6 +4,7 @@ import signal
 import sys
 import logging
 import sqlite3
+import random
 
 
 #setup logging file
@@ -65,6 +66,9 @@ for train in trains:
     cur.execute("UPDATE trains SET mode='stop' WHERE id=%s" % (train['id']))
     con.commit()
 
+#Generate initial random number for Train Station
+TrainStationRandom = random.randint(1,3)
+TrainStationCoutner = 1
 
 #Train Start
 def TrainStart(TrainSpeed,speedcontrolpin):
@@ -106,6 +110,7 @@ def TrainStation(currentSpeed,slowtime,speedcontrolpin,directionpin1,directionpi
         sleep(.2) 
 
     logging.warning("Done with Train Station Train is back at full speed")
+    return 1
 
 def TrainHome(currentSpeed,slowtime,speedcontrolpin,directionpin1,directionpin2,thstoppin1,thslowpin1,slowspeed):
     logging.warning('Waiting for train home slow pin')
@@ -199,11 +204,18 @@ while True:
     p1.ChangeDutyCycle(int(train1['speed']))
     
     if GPIO.input(slowpin1) == 1:
-        logging.warning('We just hit the Train Sation')
-        TrainStation(train1['speed'],train1['slowtime'],p1,in1,in2,stoppin1,train1['lowtrackvoltage'],train1['slowspeed'])
+        if TrainStationCoutner == TrainStationRandom:     
+            logging.warning('Train just hit the Train Sation')
+            TrainStationCoutner = TrainStation(train1['speed'],train1['slowtime'],p1,in1,in2,stoppin1,train1['lowtrackvoltage'],train1['slowspeed'])
+            TrainStationRandom = random.randint(1,3)
+
+        else:
+            logging.warning("Train hit the Trainsation Slow Pin, but passed it becasue it wasn't it's time")
+            TrainStationCoutner += 1
+            sleep(1)
     
     if GPIO.input(homebutton1) == 1:
-        logging.warning('We Going Home')
+        logging.warning('Train is Going Home')
         TrainHome(train1['speed'],train1['slowtime'],p1,in1,in2,homestoppin1,homeslowpin1,train1['slowspeed'])
         cur.execute("UPDATE trains SET running=0, mode='stop' WHERE id=%s" % (track1ap['trainID']))
         con.commit()

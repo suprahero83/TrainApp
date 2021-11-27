@@ -1,5 +1,6 @@
 from flask import *  
 import sqlite3
+from time import sleep
 
       
 app = Flask(__name__) 
@@ -196,9 +197,21 @@ def editactiveprofiles():
         con.close()
         return render_template("updateactiveprofile.html",the_title="Update Active Profiles")
 
+@app.route("/logs")
+def logs():
+    return render_template("logs.html")
 
+@app.route("/logs_stream")
+def logs_stream():
+    def generate():
+       with open('/opt/TrainApp/trainpower.log') as f:
+           while True:
+               yield f.read()
+               sleep(1)
+
+    return app.response_class(generate(), mimetype='text/plain')
 
 
 
 if __name__ == "__main__":  
-    app.run(debug=True,host="0.0.0.0",port=80)  
+    app.run(debug=True,host="0.0.0.0",port=5000)  

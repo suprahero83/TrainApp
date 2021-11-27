@@ -6149,3 +6149,15 @@ WARNING:root:Train is stopped. Waiting for start/stop button
 WARNING:root:TrainPower Application Starting
 WARNING:root:<sqlite3.Connection object at 0xb6610720>
 WARNING:root:Train is stopped. Waiting for start/stop button
+WARNING:root:TrainPower Application Starting
+WARNING:root:<sqlite3.Connection object at 0x765dcba0>
+WARNING:root:Train is Stopping
+WARNING:root:Train is stopped. Waiting for start/stop button
+WARNING:root:Train is starting
+WARNING:root:Done Starting, Train is at full speed
+WARNING:root:Train is Stopping
+WARNING:root:Train is stopped. Waiting for start/stop button
+WARNING:root:Train is starting
+WARNING:root:Done Starting, Train is at full speed
+WARNING:root:Train is Stopping
+WARNING:root:Train is stopped. Waiting for start/stop button

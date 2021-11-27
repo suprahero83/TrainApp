@@ -1,7 +1,7 @@
 ### TO DO ###
 - Random train stops.
-- Disable start button in web interface when train is running. 
-- Logs view in web interface.
+- Disable start button in web interface when train is running. - Done
+- Logs view in web interface. - Done
 - reverse and reverse speed.
 
 

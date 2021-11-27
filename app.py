@@ -13,8 +13,11 @@ def index():
  
     if request.method == "POST":
         if request.form['mode'] == 'start':
-            cur.execute("UPDATE trains SET mode='run',running=0 WHERE id=%s" % (request.form['trainid']))
-            con.commit()
+            cur.execute("select * from trains WHERE id=%s" % (request.form['trainid']))
+            train = cur.fetchone()
+            if train['mode'] == 'stop':
+                cur.execute("UPDATE trains SET mode='run',running=0 WHERE id=%s" % (request.form['trainid']))
+                con.commit()
         elif request.form['mode'] == 'stop':
             cur.execute("UPDATE trains SET mode='stop',running=1 WHERE id=%s" % (request.form['trainid']))
             con.commit()
@@ -74,11 +77,6 @@ def index():
             msg="Looks like a active train profile has been deleted, All active train profile have been reset."
     con.close()
     return render_template("index.html", activeprofiles = activeprofiles, the_title="Train Power", msg=msg)
-
-    
-    
-    
-
 
 @app.route("/addprofile")  
 def add():  

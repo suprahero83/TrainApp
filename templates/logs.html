@@ -44,7 +44,7 @@
                 var output = document.getElementById('output');
 
                 var xhr = new XMLHttpRequest();
-                xhr.open('GET', '{{ url_for('logs_stream') }}');
+                xhr.open('GET', "{{ url_for('logs_stream') }}");
                 xhr.send();
                 var position = 0;
 

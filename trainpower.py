@@ -70,7 +70,6 @@ for train in trains:
 TrainStationRandom = random.randint(1,3)
 TrainStationCoutner = 1
 
-#Train Start
 def TrainStart(TrainSpeed,speedcontrolpin):
     logging.warning('Train is starting')
     for startSpeed in range (0, int(TrainSpeed), 1):
@@ -173,9 +172,7 @@ def TrainReverse(ReverseSpeed,speedcontrolpin):
     GPIO.output(in1,GPIO.LOW)
     GPIO.output(in2,GPIO.LOW)
 
-
 signal.signal(signal.SIGINT, signal_handler)
-
 
 #Start of main loop
 while True:
@@ -245,8 +242,6 @@ while True:
         TrainReverse(train1['reversespeed'],p2)
         cur.execute("UPDATE trains SET mode='stop',running=0 WHERE id=%s" % (track1ap['trainID']))
         con.commit()
-
-
 
     if pinDebug == 1:
 

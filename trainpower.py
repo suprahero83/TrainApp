@@ -184,7 +184,7 @@ while True:
     cur.execute("SELECT * FROM trains WHERE ID = %s" % (track1ap['trainID']))
     train1 = cur.fetchone()
     #Checking if the train is running or not.
-    if train1['mode'] ==  'stop':
+    if train1['mode'] == 'stop':
         if train1['running'] == 1:
             TrainStop(train1['speed'],p1)
             cur.execute("UPDATE trains SET running=0 WHERE id=%s" % (track1ap['trainID']))

@@ -168,7 +168,6 @@ def updateprofile():
     if request.method == "POST":
         con = sqlite3.connect("/opt/TrainApp/trainpower.db")  
         cur = con.cursor()
-        print(request.form['reversespeed'])
         cur.execute("""UPDATE trains SET trainname = '%s', speed = '%s', slowtime = '%s', lowtrackvoltage = '%s', slowspeed = '%s', reversespeed = '%s' WHERE id = '%s'""" % (request.form['trainname'],request.form['speed'],request.form['slowtime'],request.form['lowtrackvoltage'],request.form['slowspeed'],request.form['reversespeed'],request.form['id']))
         con.commit()
         con.close()

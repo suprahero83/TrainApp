@@ -29,3 +29,7 @@ sudo systemctl stop trainapp.service
 ### Restart Train App ###
 sudo systemctl restart trainapp.service
 
+### References ###
+
+https://github.com/adafruit/Adafruit_CircuitPython_PCA9685/blob/main/examples/pca9685_simpletest.py
+https://github.com/custom-build-robots/Motor-Driver-BTS7960B-and-PCA9685/blob/master/BTS7960HBridgePCA9685.py

@@ -17,8 +17,7 @@ pinDebug = 0
 #Setting Pins for Track1 power source
 in1 = 27
 in2 = 17
-ena1 = 12
-ena2 = 18
+ena1 = 18
 slowpin1 = 4
 stoppin1 = 20
 startstopbutton1 = 6
@@ -32,7 +31,6 @@ GPIO.setmode(GPIO.BCM)
 GPIO.setup(in1,GPIO.OUT)
 GPIO.setup(in2,GPIO.OUT)
 GPIO.setup(ena1,GPIO.OUT)
-GPIO.setup(ena2,GPIO.OUT)
 GPIO.output(in1,GPIO.LOW)
 GPIO.output(in2,GPIO.LOW)
 GPIO.setup(reverseswitch1, GPIO.IN, pull_up_down = GPIO.PUD_DOWN)
@@ -45,8 +43,6 @@ GPIO.setup(homebutton1, GPIO.IN, pull_up_down = GPIO.PUD_DOWN)
 
 p1=GPIO.PWM(ena1,100)
 p1.start(0)
-p2=GPIO.PWM(ena2,100)
-p2.start(0)
 
 def signal_handler(sig, frame):
     GPIO.cleanup()
@@ -73,9 +69,10 @@ TrainStationCoutner = 1
 def TrainStart(TrainSpeed,speedcontrolpin):
     logging.warning('Train is starting')
     for startSpeed in range (0, int(TrainSpeed), 1):
-        speedcontrolpin.ChangeDutyCycle(int(startSpeed))
         GPIO.output(in1,GPIO.HIGH)
-        GPIO.output(in2,GPIO.HIGH)
+        GPIO.output(in2,GPIO.LOW)
+        speedcontrolpin.ChangeDutyCycle(int(startSpeed))
+
         sleep(.2)
     logging.warning("Done Starting, Train is at full speed")
 
@@ -160,7 +157,7 @@ def TrainReverse(ReverseSpeed,speedcontrolpin):
         if GPIO.input(startstopbutton1) == 1:
             for startSpeed in range (0, int(ReverseSpeed), 1):
                 speedcontrolpin.ChangeDutyCycle(int(startSpeed))
-                GPIO.output(in1,GPIO.HIGH)
+                GPIO.output(in1,GPIO.LOW)
                 GPIO.output(in2,GPIO.HIGH)
                 sleep(.2)
             logging.warning("Done Starting, Train is at full speed")
@@ -239,7 +236,7 @@ while True:
     if GPIO.input(reverseswitch1) == 1:
         logging.warning("Reverse switch has been flipped")
         TrainStop(train1['speed'],p1)
-        TrainReverse(train1['reversespeed'],p2)
+        TrainReverse(train1['reversespeed'],p1)
         cur.execute("UPDATE trains SET mode='stop',running=0 WHERE id=%s" % (track1ap['trainID']))
         con.commit()
 

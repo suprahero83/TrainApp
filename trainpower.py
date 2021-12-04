@@ -77,7 +77,7 @@ def TrainStart(TrainSpeed,speedcontrolpin):
     logging.warning("Done Starting, Train is at full speed")
 
 def TrainStop(TrainSpeed,speedcontrolpin):
-    logging.warning('Train is Stopping')
+
     for stopSpeed in range (int(TrainSpeed), 0 , -1):
         speedcontrolpin.ChangeDutyCycle(int(stopSpeed))
         sleep(.1)
@@ -155,19 +155,20 @@ def TrainReverse(ReverseSpeed,speedcontrolpin):
     logging.warning("In reverse, wating for the stop/start button")
     while GPIO.input(reverseswitch1) == 1:
         if GPIO.input(startstopbutton1) == 1:
+            logging.warning("Train running in reverse")
+            GPIO.output(in1,GPIO.LOW)
+            GPIO.output(in2,GPIO.HIGH)
             for startSpeed in range (0, int(ReverseSpeed), 1):
                 speedcontrolpin.ChangeDutyCycle(int(startSpeed))
-                GPIO.output(in1,GPIO.LOW)
-                GPIO.output(in2,GPIO.HIGH)
                 sleep(.2)
-            logging.warning("Done Starting, Train is at full speed")
-            
-    
-    for stopSpeed in range (int(ReverseSpeed), 0 , -1):
-        speedcontrolpin.ChangeDutyCycle(int(stopSpeed))
-        sleep(.05)
-    GPIO.output(in1,GPIO.LOW)
-    GPIO.output(in2,GPIO.LOW)
+
+        if GPIO.input(homebutton1) == 1:
+            logging.warning("Train stopped in reverse, waiting for start/stop button or revese switch to be flipped.")
+            for stopSpeed in range (int(ReverseSpeed), 0 , -1):
+                speedcontrolpin.ChangeDutyCycle(int(stopSpeed))
+                sleep(.05)
+            GPIO.output(in1,GPIO.LOW)
+            GPIO.output(in2,GPIO.LOW)
 
 signal.signal(signal.SIGINT, signal_handler)
 
@@ -186,6 +187,7 @@ while True:
     #Checking if the train is running or not.
     if train1['mode'] == 'stop':
         if train1['running'] == 1:
+            logging.warning('Train is Stopping')
             TrainStop(train1['speed'],p1)
             cur.execute("UPDATE trains SET running=0 WHERE id=%s" % (track1ap['trainID']))
             con.commit()

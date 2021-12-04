@@ -153,22 +153,34 @@ def TrainHome(currentSpeed,slowtime,speedcontrolpin,directionpin1,directionpin2,
 
 def TrainReverse(ReverseSpeed,speedcontrolpin):
     logging.warning("In reverse, wating for the stop/start button")
+    ReverseRunning = 0
     while GPIO.input(reverseswitch1) == 1:
-        if GPIO.input(startstopbutton1) == 1:
-            logging.warning("Train running in reverse")
-            GPIO.output(in1,GPIO.LOW)
-            GPIO.output(in2,GPIO.HIGH)
-            for startSpeed in range (0, int(ReverseSpeed), 1):
-                speedcontrolpin.ChangeDutyCycle(int(startSpeed))
-                sleep(.2)
+        if ReverseRunning == 0: # Check to see if the train is already running in reverse
+            if GPIO.input(startstopbutton1) == 1:
+                logging.warning("Train running in reverse")
+                GPIO.output(in1,GPIO.LOW)
+                GPIO.output(in2,GPIO.HIGH)
+                for startSpeed in range (0, int(ReverseSpeed), 1):
+                    speedcontrolpin.ChangeDutyCycle(int(startSpeed))
+                    sleep(.2)
+                ReverseRunning = 1
 
-        if GPIO.input(homebutton1) == 1:
+
+        if GPIO.input(homebutton1) == 1: # Stop the train when the home button is pressed
             logging.warning("Train stopped in reverse, waiting for start/stop button or revese switch to be flipped.")
             for stopSpeed in range (int(ReverseSpeed), 0 , -1):
                 speedcontrolpin.ChangeDutyCycle(int(stopSpeed))
                 sleep(.05)
             GPIO.output(in1,GPIO.LOW)
             GPIO.output(in2,GPIO.LOW)
+            ReverseRunning = 0
+
+    if ReverseRunning == 1: # Stop the train if it is running and the switch is flipped to forward. 
+        for stopSpeed in range (int(ReverseSpeed), 0 , -1): 
+            speedcontrolpin.ChangeDutyCycle(int(stopSpeed))
+            sleep(.05)
+        GPIO.output(in1,GPIO.LOW)
+        GPIO.output(in2,GPIO.LOW)
 
 signal.signal(signal.SIGINT, signal_handler)
 

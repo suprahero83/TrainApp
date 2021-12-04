@@ -52,8 +52,6 @@ def signal_handler(sig, frame):
 # Open Database Connection
 con = sqlite3.connect("/opt/TrainApp/trainpower.db")  
 con.row_factory = sqlite3.Row
-print(con)
-logging.warning(con)
 #Reset all Train Profiles to stop
 cur = con.cursor()
 cur.execute("SELECT * FROM trains")

@@ -15,9 +15,8 @@ logging.warning("TrainPower Application Starting")
 pinDebug = 0
 
 #Setting Pins for Track1 power source
-in1 = 27
-in2 = 17
-ena1 = 18
+dirpin = 17
+pwmpin = 18
 slowpin1 = 4
 stoppin1 = 20
 startstopbutton1 = 6
@@ -28,11 +27,10 @@ reverseswitch1 = 21
 
 #setting up Pins
 GPIO.setmode(GPIO.BCM)
-GPIO.setup(in1,GPIO.OUT)
-GPIO.setup(in2,GPIO.OUT)
-GPIO.setup(ena1,GPIO.OUT)
-GPIO.output(in1,GPIO.LOW)
-GPIO.output(in2,GPIO.LOW)
+GPIO.setup(dirpin,GPIO.OUT)
+GPIO.setup(pwmpin,GPIO.OUT)
+GPIO.output(dirpin,GPIO.LOW)
+GPIO.output(pwmpin,GPIO.LOW)
 GPIO.setup(reverseswitch1, GPIO.IN, pull_up_down = GPIO.PUD_DOWN)
 GPIO.setup(slowpin1, GPIO.IN, pull_up_down = GPIO.PUD_DOWN)
 GPIO.setup(stoppin1, GPIO.IN, pull_up_down = GPIO.PUD_DOWN)
@@ -41,7 +39,7 @@ GPIO.setup(homeslowpin1, GPIO.IN, pull_up_down = GPIO.PUD_DOWN)
 GPIO.setup(homestoppin1, GPIO.IN, pull_up_down = GPIO.PUD_DOWN)
 GPIO.setup(homebutton1, GPIO.IN, pull_up_down = GPIO.PUD_DOWN)
 
-p1=GPIO.PWM(ena1,100)
+p1=GPIO.PWM(pwmpin,100)
 p1.start(0)
 
 def signal_handler(sig, frame):
@@ -67,22 +65,17 @@ TrainStationCoutner = 1
 def TrainStart(TrainSpeed,speedcontrolpin):
     logging.warning('Train is starting')
     for startSpeed in range (0, int(TrainSpeed), 1):
-        GPIO.output(in1,GPIO.HIGH)
-        GPIO.output(in2,GPIO.LOW)
         speedcontrolpin.ChangeDutyCycle(int(startSpeed))
-
         sleep(.2)
     logging.warning("Done Starting, Train is at full speed")
 
 def TrainStop(TrainSpeed,speedcontrolpin):
-
-    for stopSpeed in range (int(TrainSpeed), 0 , -1):
+    for stopSpeed in range (int(TrainSpeed),-1 , -1):
         speedcontrolpin.ChangeDutyCycle(int(stopSpeed))
         sleep(.1)
-    GPIO.output(in1,GPIO.LOW)
-    GPIO.output(in2,GPIO.LOW)
 
-def TrainStation(currentSpeed,slowtime,speedcontrolpin,directionpin1,directionpin2,stoppin,LowTrackVoltage,slowspeed):
+
+def TrainStation(currentSpeed,slowtime,speedcontrolpin,stoppin,LowTrackVoltage,slowspeed):
     for slowDown in range (int(currentSpeed), int(slowspeed), -1):
         speedcontrolpin.ChangeDutyCycle(int(slowDown))
         slowtimeB = int(slowtime) / int(currentSpeed)
@@ -105,7 +98,7 @@ def TrainStation(currentSpeed,slowtime,speedcontrolpin,directionpin1,directionpi
     logging.warning("Done with Train Station Train is back at full speed")
     return 1
 
-def TrainHome(currentSpeed,slowtime,speedcontrolpin,directionpin1,directionpin2,thstoppin1,thslowpin1,slowspeed):
+def TrainHome(currentSpeed,slowtime,speedcontrolpin,thstoppin1,thslowpin1,slowspeed):
 
     logging.warning('Waiting for train home slow pin')
     while True:
@@ -144,8 +137,6 @@ def TrainHome(currentSpeed,slowtime,speedcontrolpin,directionpin1,directionpin2,
             if GPIO.input(thstoppin1) == 1:
                 logging.warning('Train home stop pin was triggered')
                 speedcontrolpin.ChangeDutyCycle(0)
-                GPIO.output(directionpin1,GPIO.LOW)
-                GPIO.output(directionpin2,GPIO.LOW)
                 break
     logging.warning('We are stopped in the tunnel')
 
@@ -155,9 +146,8 @@ def TrainReverse(ReverseSpeed,speedcontrolpin):
     while GPIO.input(reverseswitch1) == 1:
         if ReverseRunning == 0: # Check to see if the train is already running in reverse
             if GPIO.input(startstopbutton1) == 1:
-                logging.warning("Train running in reverse")
-                GPIO.output(in1,GPIO.LOW)
-                GPIO.output(in2,GPIO.HIGH)
+                logging.warning("Train running in reverse")                
+                GPIO.output(dirpin,GPIO.HIGH)
                 for startSpeed in range (0, int(ReverseSpeed), 1):
                     speedcontrolpin.ChangeDutyCycle(int(startSpeed))
                     sleep(.2)
@@ -166,19 +156,17 @@ def TrainReverse(ReverseSpeed,speedcontrolpin):
 
         if GPIO.input(homebutton1) == 1: # Stop the train when the home button is pressed
             logging.warning("Train stopped in reverse, waiting for start/stop button or revese switch to be flipped.")
-            for stopSpeed in range (int(ReverseSpeed), 0 , -1):
+            for stopSpeed in range (int(ReverseSpeed), -1 , -1):
                 speedcontrolpin.ChangeDutyCycle(int(stopSpeed))
                 sleep(.05)
-            GPIO.output(in1,GPIO.LOW)
-            GPIO.output(in2,GPIO.LOW)
+            GPIO.output(dirpin,GPIO.LOW) #setting back to forward incase the reverse switch is flipped
             ReverseRunning = 0
 
     if ReverseRunning == 1: # Stop the train if it is running and the switch is flipped to forward. 
-        for stopSpeed in range (int(ReverseSpeed), 0 , -1): 
+        for stopSpeed in range (int(ReverseSpeed), -1 , -1): 
             speedcontrolpin.ChangeDutyCycle(int(stopSpeed))
             sleep(.05)
-        GPIO.output(in1,GPIO.LOW)
-        GPIO.output(in2,GPIO.LOW)
+        GPIO.output(dirpin,GPIO.LOW)
 
 signal.signal(signal.SIGINT, signal_handler)
 
@@ -222,16 +210,14 @@ while True:
             con.commit()
     #Checking to see if Go Home function was triggered via the web interface
     elif train1['mode'] == 'home':
-        TrainHome(train1['speed'],train1['slowtime'],p1,in1,in2,homestoppin1,homeslowpin1,train1['slowspeed'])
+        TrainHome(train1['speed'],train1['slowtime'],p1,homestoppin1,homeslowpin1,train1['slowspeed'])
         cur.execute("UPDATE trains SET running=0, mode='stop', running=0 WHERE id=%s" % (track1ap['trainID']))
         con.commit()
-
-    p1.ChangeDutyCycle(int(train1['speed']))
     
     if GPIO.input(slowpin1) == 1:
         if TrainStationCoutner == TrainStationRandom:     
             logging.warning('Train just hit the Train Sation')
-            TrainStationCoutner = TrainStation(train1['speed'],train1['slowtime'],p1,in1,in2,stoppin1,train1['lowtrackvoltage'],train1['slowspeed'])
+            TrainStationCoutner = TrainStation(train1['speed'],train1['slowtime'],p1,stoppin1,train1['lowtrackvoltage'],train1['slowspeed'])
             TrainStationRandom = random.randint(1,3)
 
         else:
@@ -241,7 +227,7 @@ while True:
     
     if GPIO.input(homebutton1) == 1:
         logging.warning('Train is Going Home')
-        TrainHome(train1['speed'],train1['slowtime'],p1,in1,in2,homestoppin1,homeslowpin1,train1['slowspeed'])
+        TrainHome(train1['speed'],train1['slowtime'],p1,homestoppin1,homeslowpin1,train1['slowspeed'])
         cur.execute("UPDATE trains SET running=0, mode='stop' WHERE id=%s" % (track1ap['trainID']))
         con.commit()
 

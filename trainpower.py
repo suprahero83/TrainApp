@@ -21,8 +21,8 @@ slowpin1 = 4
 stoppin1 = 20
 startstopbutton1 = 6
 homebutton1 = 26
-homeslowpin1 = 13
-homestoppin1 = 19
+homeslowpin1 = 23
+homestoppin1 = 24
 reverseswitch1 = 21
 
 #setting up Pins
